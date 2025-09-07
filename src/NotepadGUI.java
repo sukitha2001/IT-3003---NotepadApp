@@ -2,8 +2,10 @@ import javax.swing.*;
 import javax.swing.filechooser.FileNameExtensionFilter;
 import java.awt.*;
 import java.awt.event.ActionListener;
+import java.io.BufferedWriter;
 import java.io.File;
 import java.awt.event.*;
+import java.io.FileWriter;
 
 
 public class NotepadGUI extends JFrame {
@@ -11,6 +13,7 @@ public class NotepadGUI extends JFrame {
     //file explorer
     private JFileChooser fileChooser;
 
+    private JTextArea textArea;
 
     public  NotepadGUI() {
         super("Notepad");
@@ -30,7 +33,7 @@ public class NotepadGUI extends JFrame {
         addToolbar();
 
         //area to type text into
-        JTextArea textArea = new JTextArea();
+        textArea = new JTextArea();
         add(textArea,BorderLayout.CENTER);
     }
     public void addToolbar(){
@@ -65,6 +68,36 @@ public class NotepadGUI extends JFrame {
             public void actionPerformed(ActionEvent e){
                 //open save dialog
                 fileChooser.showSaveDialog(NotepadGUI.this);
+
+                try{
+                    File selectedFile = fileChooser.getSelectedFile();
+
+                    // append .txt to the file if it does not have the txt extension yet
+
+                    String fileName = selectedFile.getName();
+                    if(!fileName.substring(fileName.length() - 4).equalsIgnoreCase(".txt")){
+                        selectedFile = new File(selectedFile.getAbsoluteFile() + ".txt");
+                    }
+
+                    //create new file
+                    selectedFile.createNewFile();
+
+                    FileWriter fileWriter = new FileWriter(selectedFile);
+                    BufferedWriter bufferedWriter = new BufferedWriter(fileWriter);
+                    bufferedWriter.write(textArea.getText());
+                    bufferedWriter.close();
+                    fileWriter.close();
+
+                    //update the title header of gui to the save text file
+                    setTitle(fileName);
+
+                    //Show display dialog
+                    JOptionPane.showMessageDialog(NotepadGUI.this,"Saved File!");
+
+                }catch (Exception e1){
+                    e1.printStackTrace();
+                }
+
             }
         });
         fileMenu.add(saveAsMenuItem);
