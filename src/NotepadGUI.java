@@ -2,10 +2,9 @@ import javax.swing.*;
 import javax.swing.filechooser.FileNameExtensionFilter;
 import java.awt.*;
 import java.awt.event.ActionListener;
-import java.io.BufferedWriter;
-import java.io.File;
+import java.io.*;
 import java.awt.event.*;
-import java.io.FileWriter;
+
 
 
 public class NotepadGUI extends JFrame {
@@ -55,10 +54,55 @@ public class NotepadGUI extends JFrame {
 
         // "new" functionality - reset everything
         JMenuItem newMenuItem = new JMenuItem("New");
+        newMenuItem.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                //reset title header
+                setTitle("Notepad");
+
+                //reset text area
+                textArea.setText("");
+            }
+        });
         fileMenu.add(newMenuItem);
 
         //"Open" functionality - open a text file
         JMenuItem openMenuItem = new JMenuItem("Open");
+        openMenuItem.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                //open file explorer
+                fileChooser.showOpenDialog(NotepadGUI.this);
+
+                try{
+                    //reset notepad
+                    newMenuItem.doClick();
+
+                    //get the selected file
+                    File  selectedFile = fileChooser.getSelectedFile();
+
+                    //update title header
+                    setTitle(selectedFile.getName());
+
+                    //read the file
+                    FileReader fileReader = new FileReader(selectedFile);
+                    BufferedReader bufferedReader = new BufferedReader(fileReader);
+
+                    //store the text
+                    StringBuilder fileText = new StringBuilder();
+                    String readText;
+                    while((readText = bufferedReader.readLine())!= null){
+                        fileText.append(readText+"\n");
+                    }
+
+                    //update text area GUI
+                    textArea.setText(fileText.toString());
+
+                }catch (Exception e1){
+                    e1.printStackTrace();
+                }
+            }
+        });
         fileMenu.add(openMenuItem);
 
         //"save as" functionality - creates a new text file and saves user text
