@@ -194,7 +194,7 @@ public class NotepadGUI extends JFrame {
         exitMenuItem.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e){
-                //dispose of this GUI
+                //Exit the Notepad
                 NotepadGUI.this.dispose();
             }
         });
