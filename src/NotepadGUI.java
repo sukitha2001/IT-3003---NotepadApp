@@ -13,6 +13,7 @@ public class NotepadGUI extends JFrame {
     private JFileChooser fileChooser;
 
     private JTextArea textArea;
+    private File currentFile;
 
     public  NotepadGUI() {
         super("Notepad");
@@ -62,48 +63,57 @@ public class NotepadGUI extends JFrame {
 
                 //reset text area
                 textArea.setText("");
+
+                //reset current file
+                currentFile = null;
             }
         });
         fileMenu.add(newMenuItem);
 
         //"Open" functionality - open a text file
+        // "open" functionality - open a text file
         JMenuItem openMenuItem = new JMenuItem("Open");
         openMenuItem.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                //open file explorer
-                fileChooser.showOpenDialog(NotepadGUI.this);
+                // open file explorer
+                int result = fileChooser.showOpenDialog(NotepadGUI.this);
 
+                if(result != JFileChooser.APPROVE_OPTION) return;
                 try{
-                    //reset notepad
+                    // reset notepad
                     newMenuItem.doClick();
 
-                    //get the selected file
-                    File  selectedFile = fileChooser.getSelectedFile();
+                    // get the selected file
+                    File selectedFile = fileChooser.getSelectedFile();
 
-                    //update title header
+                    // update current file
+                    currentFile = selectedFile;
+
+                    // update title header
                     setTitle(selectedFile.getName());
 
-                    //read the file
+                    // read the file
                     FileReader fileReader = new FileReader(selectedFile);
                     BufferedReader bufferedReader = new BufferedReader(fileReader);
 
-                    //store the text
+                    // store the text
                     StringBuilder fileText = new StringBuilder();
                     String readText;
-                    while((readText = bufferedReader.readLine())!= null){
-                        fileText.append(readText+"\n");
+                    while((readText = bufferedReader.readLine()) != null){
+                        fileText.append(readText + "\n");
                     }
 
-                    //update text area GUI
+                    // update text area gui
                     textArea.setText(fileText.toString());
 
-                }catch (Exception e1){
-                    e1.printStackTrace();
+                }catch(Exception e1){
+
                 }
             }
         });
         fileMenu.add(openMenuItem);
+
 
         //"save as" functionality - creates a new text file and saves user text
         JMenuItem saveAsMenuItem = new JMenuItem("Save As");
@@ -111,8 +121,10 @@ public class NotepadGUI extends JFrame {
             @Override
             public void actionPerformed(ActionEvent e){
                 //open save dialog
-                fileChooser.showSaveDialog(NotepadGUI.this);
+                int result = fileChooser.showSaveDialog(NotepadGUI.this);
 
+                //Continoue to  execute code only if the user pressed the save button
+                if(result != JFileChooser.APPROVE_OPTION) return;
                 try{
                     File selectedFile = fileChooser.getSelectedFile();
 
@@ -135,6 +147,9 @@ public class NotepadGUI extends JFrame {
                     //update the title header of gui to the save text file
                     setTitle(fileName);
 
+                    //Update Current File
+                    currentFile = selectedFile;
+
                     //Show display dialog
                     JOptionPane.showMessageDialog(NotepadGUI.this,"Saved File!");
 
@@ -149,6 +164,26 @@ public class NotepadGUI extends JFrame {
 
         //"save" functionality - save text in to current text file
         JMenuItem saveMenuItem = new JMenuItem("Save");
+        saveMenuItem.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e){
+                //if current file is null then we have to perform save as functionality
+                if(currentFile == null) saveAsMenuItem.doClick();
+
+                try{
+                    //write to current number
+                    FileWriter fileWriter = new FileWriter(currentFile);
+                    BufferedWriter bufferedWriter = new BufferedWriter(fileWriter);
+                    bufferedWriter.write(textArea.getText());
+                    bufferedWriter.close();
+                    fileWriter.close();
+
+                }catch (Exception e1){
+                    e1.printStackTrace();
+                }
+            }
+        });
+
         fileMenu.add(saveMenuItem);
 
         //"exit" functinality - ends program process
