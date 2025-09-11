@@ -4,6 +4,10 @@ import java.awt.*;
 import java.awt.event.ActionListener;
 import java.io.*;
 import java.awt.event.*;
+import java.awt.datatransfer.Clipboard;
+import java.awt.datatransfer.DataFlavor;
+import java.awt.datatransfer.StringSelection;
+import java.awt.datatransfer.Transferable;
 
 
 
@@ -48,6 +52,8 @@ public class NotepadGUI extends JFrame {
 
         //Add Menus
         menuBar.add(addFileMenu());
+        menuBar.add(addEditMenu());
+        menuBar.add(addHelpMenu());
         add(toolBar, BorderLayout.NORTH);
     }
     private  JMenu addFileMenu(){
@@ -201,5 +207,94 @@ public class NotepadGUI extends JFrame {
         fileMenu.add(exitMenuItem);
 
         return  fileMenu;
+    }
+    private JMenu addEditMenu(){
+        JMenu editMenu = new JMenu("Edit");
+
+        //"cut" functionality - cuts selected text to clipboard
+        JMenuItem cutMenuItem = new JMenuItem("Cut");
+        cutMenuItem.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                //get selected text
+                String selectedText = textArea.getSelectedText();
+
+                if(selectedText != null){
+                    //copy to clipboard
+                    StringSelection stringSelection = new StringSelection(selectedText);
+                    Clipboard clipboard = Toolkit.getDefaultToolkit().getSystemClipboard();
+                    clipboard.setContents(stringSelection, null);
+
+                    //remove selected text from text area
+                    textArea.replaceSelection("");
+                }
+            }
+        });
+        editMenu.add(cutMenuItem);
+
+        //"copy" functionality - copies selected text to clipboard
+        JMenuItem copyMenuItem = new JMenuItem("Copy");
+        copyMenuItem.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                //get selected text
+                String selectedText = textArea.getSelectedText();
+
+                if(selectedText != null){
+                    //copy to clipboard
+                    StringSelection stringSelection = new StringSelection(selectedText);
+                    Clipboard clipboard = Toolkit.getDefaultToolkit().getSystemClipboard();
+                    clipboard.setContents(stringSelection, null);
+                }
+            }
+        });
+        editMenu.add(copyMenuItem);
+
+        //"paste" functionality - pastes text from clipboard
+        JMenuItem pasteMenuItem = new JMenuItem("Paste");
+        pasteMenuItem.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                try{
+                    //get clipboard contents
+                    Clipboard clipboard = Toolkit.getDefaultToolkit().getSystemClipboard();
+                    Transferable contents = clipboard.getContents(null);
+
+                    if(contents != null && contents.isDataFlavorSupported(DataFlavor.stringFlavor)){
+                        String clipboardText = (String) contents.getTransferData(DataFlavor.stringFlavor);
+
+                        //paste text at cursor position
+                        textArea.replaceSelection(clipboardText);
+                    }
+                }catch(Exception e1){
+                    e1.printStackTrace();
+                }
+            }
+        });
+        editMenu.add(pasteMenuItem);
+
+        return editMenu;
+    }
+
+    private JMenu addHelpMenu(){
+        JMenu helpMenu = new JMenu("Help");
+
+        //"about" functionality - shows information about the application
+        JMenuItem aboutMenuItem = new JMenuItem("About");
+        aboutMenuItem.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                //create about dialog message
+                String aboutMessage = "Simple Text Editor\n\n" +
+                        "Created by: Sukitha Rathnayake\n" +
+                        "Student ID: 2022s19501@stu.cmb.ac.lk";
+
+                //show about dialog
+                JOptionPane.showMessageDialog(NotepadGUI.this, aboutMessage, "About", JOptionPane.INFORMATION_MESSAGE);
+            }
+        });
+        helpMenu.add(aboutMenuItem);
+
+        return helpMenu;
     }
 }
