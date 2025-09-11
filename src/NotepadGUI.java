@@ -284,7 +284,7 @@ public class NotepadGUI extends JFrame {
         aboutMenuItem.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                //create about dialog message
+                //create about dialog messages
                 String aboutMessage = "Simple Text Editor\n\n" +
                         "Created by: Sukitha Rathnayake\n" +
                         "Student ID: 2022s19501@stu.cmb.ac.lk";
